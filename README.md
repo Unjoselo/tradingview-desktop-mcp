@@ -103,13 +103,26 @@ Environment variables: `TV_CDP_PORT` (default 9222), `TV_EXE_PATH` (default: aut
 
 | Tool | Description |
 |---|---|
-| `mt5_status` | Server, login, demo/real, balance, equity, margin |
-| `mt5_symbol_info` | Bid/ask, spread, contract size, lot limits |
-| `mt5_candles` | Last N OHLCV candles (M1…MN1) — last candle is still forming |
+| `mt5_status` | Server, login, demo/real, balance, equity, margin, Algo Trading button state |
+| `mt5_symbol_info` | Bid/ask, spread, point/tick size/tick value, min stop distance, freeze level, swaps, lot limits |
+| `mt5_candles` | Last N OHLCV candles (M1…MN1) with real volume and spread — last candle is still forming |
+| `mt5_ticks` | Recent ticks + spread/momentum summary |
+| `mt5_indicators` | EMA, RSI, ATR (Wilder) and session VWAP on closed candles |
+| `mt5_snapshot` | One compact call: equity, quote, positions, orders, M1/M5 indicators, last bars, range |
+| `mt5_calc` | Pre-trade margin, loss at SL, profit at TP, reward:risk |
 | `mt5_positions` | Open positions, filterable by symbol/magic |
-| `mt5_order_open` | Market order with optional SL/TP — **demo-only by default** |
-| `mt5_close` | Close by ticket/symbol/magic (refuses to close everything blindly) |
-| `mt5_history` | Closed deals + realized P&L for the last N days |
+| `mt5_orders` | Active pending orders, filterable by symbol/magic |
+| `mt5_order_open` | Market order with optional SL/TP and slippage — **demo-only by default** |
+| `mt5_pending_open` | Buy/Sell Limit/Stop with SL/TP and optional expiry — **demo-only by default** |
+| `mt5_order_cancel` | Cancel a pending order — **demo-only by default** |
+| `mt5_modify` | Change SL/TP of an open position (break-even, trailing) — **demo-only by default** |
+| `mt5_close` | Close by ticket; closing by symbol/magic needs `confirm_all=True` — **demo-only by default** |
+| `mt5_close_partial` | Close part of a position — **demo-only by default** |
+| `mt5_history` | Closed deals with position_id, commission/swap/fee and net realized P&L |
+
+`mt5_watch.py` is a read-only companion watcher: it polls every 2 s and prints one line per event (OPEN/CLOSE/PARTIAL, ORDER_GONE, PROFIT thresholds, NEAR_SL, FAST moves, M1 BREAKOUT), so an agent can react to fast markets without polling MCP tools continuously.
+
+Failed trade requests return the retcode with a readable reason (e.g. `10027` → Algo Trading disabled in the terminal) plus the broker's comment.
 
 Environment variables: `MT5_TERMINAL_PATH` (default: auto-detect), `MT5_ALLOW_REAL=1` to enable trading tools on real accounts (**off by default, on purpose**).
 
